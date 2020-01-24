@@ -8,6 +8,8 @@ endif()
 set(LUAJIT_ENABLE_GC64 OFF CACHE BOOL "Enable GC64 mode for x64")
 set(LUA_MULTILIB "lib" CACHE PATH "The name of lib directory." )
 set(CMAKE_CROSSCOMPILING ${LJ_CROSSCOMPILING} CACHE BOOL "Cross-compiling")
+set(CMAKE_CROSSCOMPILING_COMMAND "C:/Program Files/CMake/bin/cmake.exe")
+#set(CMAKE_CROSSCOMPILING_COMMAND ${CAND} CACHE STRING "Path to cmake to use when crosscompiling")
 set(LUAJIT_DISABLE_FFI OFF CACHE BOOL "Permanently disable the FFI extension")
 set(LUAJIT_DISABLE_JIT OFF CACHE BOOL "Disable the JIT compiler")
 set(LUAJIT_NUMMODE 0 CACHE STRING
@@ -21,7 +23,7 @@ set(LUAJIT_FORCE_UTF8_FOPEN OFF CACHE BOOL "Enforce UTF8 paths charset in fopen(
 
 set(MINILUA_EXE minilua)
 if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-  set(MINILUA_EXE minilua.exe)
+  set(MINILUA_EXE Debug/minilua.exe)
 endif()
 set(MINILUA_PATH ${CMAKE_CURRENT_BINARY_DIR}/minilua/${MINILUA_EXE})
 
@@ -33,8 +35,8 @@ else()
   make_directory(${CMAKE_CURRENT_BINARY_DIR}/minilua)
 
   add_custom_command(OUTPUT ${MINILUA_PATH}
-    COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/host/cmake/minilua
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/minilua
+    COMMAND ${CMAKE_CROSSCOMPILING_COMMAND} -A x64 ${CMAKE_CURRENT_SOURCE_DIR}/host/cmake/minilua
+    COMMAND ${CMAKE_CROSSCOMPILING_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/minilua
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/minilua)
 
   add_custom_target(minilua ALL
@@ -307,7 +309,7 @@ file(WRITE ${BUILDVM_COMPILER_FLAGS_PATH} "${BUILDVM_COMPILER_FLAGS}")
 
 set(BUILDVM_EXE buildvm)
 if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-  set(BUILDVM_EXE buildvm.exe)
+  set(BUILDVM_EXE Debug/buildvm.exe)
 endif()
 
 if (NOT CMAKE_CROSSCOMPILING)
@@ -320,9 +322,9 @@ else()
   make_directory(${CMAKE_CURRENT_BINARY_DIR}/buildvm)
 
   add_custom_command(OUTPUT ${BUILDVM_PATH}
-    COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/host/cmake/buildvm
+    COMMAND ${CMAKE_CROSSCOMPILING_COMMAND} -A x64 ${CMAKE_CURRENT_SOURCE_DIR}/host/cmake/buildvm
             -DEXTRA_COMPILER_FLAGS_FILE=${BUILDVM_COMPILER_FLAGS_PATH}
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/buildvm
+    COMMAND ${CMAKE_CROSSCOMPILING_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/buildvm
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/host/cmake/buildvm/CMakeLists.txt
     DEPENDS buildvm_arch_h
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/buildvm)
